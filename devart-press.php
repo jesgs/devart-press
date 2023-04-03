@@ -15,11 +15,14 @@
 * Domain Path:       /languages
 */
 
+// @todo Create PS4-compliant autoloader
+// @todo Investigate possible PHP libraries for integrating DeviantArt with WordPress
+
 // @todo Create an option that allows a tech savvy user to add the values to their system environment, but also add a text field in the admin for users who are not tech-savvy
 define( 'CLIENT_ID', getenv( 'CLIENT_ID' ) );
 define( 'CLIENT_SECRET', getenv( 'CLIENT_SECRET' ) );
 
-//@todo Investigate the possibility of cross-posting blog posts to DeviantArt and vice-versa
+// @todo Investigate the possibility of cross-posting blog posts to DeviantArt and vice-versa
 
 $install = \JesGs\DevArt\Install::get_instance();
 
