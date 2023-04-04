@@ -54,7 +54,7 @@ function handle_deviantart( $matches, $attr, $url, $rawattr ): string {
 
 	// Generate client-side HTML here
 	$deviation = json_decode( $da_response_body, true );
-	$html = '<figure><img src="' . $deviation['url'] . '" width="' . $deviation['thumbnail_width'] . '" height="' . $deviation['thumbnail_height'] . '" /><figcaption><strong>' . $deviation['title'] . '</strong><br />&copy; ' . $deviation['author_name'] . ' <a href="' . $deviation['author_url'] . '">View on DeviantArt</a></figcaption></figure>';
+	$html      = '<figure><img src="' . $deviation['url'] . '" width="' . $deviation['thumbnail_width'] . '" height="' . $deviation['thumbnail_height'] . '" /><figcaption><strong>' . $deviation['title'] . '</strong><br />&copy; ' . $deviation['author_name'] . ' <a href="' . $deviation['author_url'] . '">View on DeviantArt</a></figcaption></figure>';
 
 	return apply_filters( 'devart-press_deviation_embed_html', $html );
 }

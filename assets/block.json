@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/block.json",
+  "apiVersion": 2,
+  "name": "mangapress/mangapress-blocks",
+  "title": "Manga+Press Comic Block",
+  "textdomain": "mangapress-blocks",
+  "icon": "universal-access-alt",
+  "category": "layout",
+  "example": {},
+  "editorScript": "file:./src/index.js"
+}
