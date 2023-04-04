@@ -1,0 +1,23 @@
+{
+    "name": "jesgs/devart-press",
+    "type": "project",
+    "license": "GPL2",
+    "minimum-stability": "dev",
+    "repositories":[
+        {
+            "type": "git",
+            "url": "git@github.com:jesgs/oauth2-deviantart.git"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "JesGs\\DevArt\\": "src/"
+        },
+        "files": [
+            "src/helpers/oembed-deviantart.php"
+        ]
+    },
+    "require": {
+        "jesgs/oauth2-deviantart": "dev-master"
+    }
+}
