@@ -15,7 +15,6 @@
 * Domain Path:       /languages
 */
 
-// @todo Investigate possible PHP libraries for integrating DeviantArt with WordPress
 // @todo Investigate the possibility of cross-posting blog posts to DeviantArt and vice-versa
 // @todo Create an option that allows a tech savvy user to add the values to their system environment, but also add a text field in the admin for users who are not tech-savvy
 require __DIR__ . '/vendor/autoload.php';
@@ -27,3 +26,5 @@ $install = \JesGs\DevArt\Install::get_instance();
 
 register_activation_hook( __FILE__, [ $install, 'activate' ] );
 register_deactivation_hook( __FILE__, [ $install, 'deactivate' ] );
+
+add_action( 'plugin_loaded', [ '\JesGs\DevArt\Plugin', 'plugin_loaded' ] );
