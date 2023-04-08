@@ -75,7 +75,7 @@
   "scripts": {
     "build": "webpack",
     "start": "webpack --watch",
-    "prettier-format": "prettier --config .prettierrc --write src/blocks/**/*.tsx",
+    "prettier-format": "prettier --config .prettierrc --write assets/admin/ui/src/blocks/**/*.tsx",
     "wp-env:start": "wp-env start"
   },
   "lint": "eslint .",

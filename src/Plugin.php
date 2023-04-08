@@ -2,16 +2,11 @@
 
 namespace JesGs\DevArt;
 
-use \League\OAuth2\Client\Token\AccessToken;
+use JesGs\DevArt\Interfaces\PluginComponent;
+use JesGs\DevArt\Admin\Admin;
+use JesGs\DevArt\DeviantArt\Deviation;
 
 class Plugin {
-
-	const TOKEN_OPTION_NAME = 'deviantart_access_token';
-
-	/**
-	 * @var AccessToken $access_token
-	 */
-	protected static AccessToken $access_token;
 
 	/**
 	 * @var Auth|null $auth
@@ -23,6 +18,11 @@ class Plugin {
 	 */
 	static private ?Plugin $instance = null;
 
+	/**
+	 * @var PluginComponent[] $registry
+	 */
+	protected array $registry = [];
+
 	public static function get_instance(): ?Plugin {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Plugin();
@@ -31,51 +31,33 @@ class Plugin {
 		return self::$instance;
 	}
 
-	public static function plugin_loaded(): void {
+	public static function plugin_loaded( $plugin ): void {
+		// prevents the classes from being loaded on every plugin load
 
-		// do auth here
-		if ( ! self::$auth ) {
-			self::$auth = new Auth();
-		}
-
-//		self::$auth->get_access_token();
-//
-//		/**
-//		 * @var AccessToken $access_token
-//		 */
-//		$access_token = get_option( self::TOKEN_OPTION_NAME, false );
-
-		// if access token has expired, then get new one
-//		if ( ! $access_token || $access_token->hasExpired() ) {
-//			self::set_access_token( self::$auth->get_access_token() );
-//		} else {
-//			self::set_access_token( $access_token );
-//		}
-//
-//		$post = get_post( 2349 );
-//		\JesGs\DevArt\DeviantArt\Deviation::create_journal( $post );
-
+		self::get_instance()->load_components([
+			Auth::class,
+			Admin::class,
+			Deviation::class,
+		]);
 	}
+
 
 	/**
-	 * Retrieve AccessToken object
-	 * @return AccessToken
+	 * Load plugin components
+	 *
+	 * @param array $components
 	 */
-	public static function get_access_token(): AccessToken {
-		return self::$access_token;
-	}
+	public function load_components( array $components = [] ): void {
 
-	public static function set_access_token( AccessToken $access_token ): void {
-		self::$access_token = $access_token;
-
-		add_option( 'deviantart_access_token', $access_token );
-	}
-
-	public function get_auth(): Auth {
-		return self::$auth;
-	}
-
-	public function set_auth( Auth $auth ): void {
-		self::$auth = $auth;
+		/**
+		 * @var $component
+		 */
+		foreach ($components as $component) {
+			$comp = new $component;
+			if ($comp instanceof PluginComponent) {
+				$comp->init();
+				$this->registry[] = $comp; // add component to registry
+			}
+		}
 	}
 }

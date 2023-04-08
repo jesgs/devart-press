@@ -27,6 +27,9 @@ function handle_deviantart( $matches, $attr, $url, $rawattr ): string {
 	global $post_id;
 
 	/**
+	 * Cache the results of the embed to the post's metadata so we're not hitting the API
+	 * more than necessary
+	 *
 	 * @var int $time_to_expiration When the meta field should be refreshed
 	 * @var string $cached_response Cached JSON response object
 	 */

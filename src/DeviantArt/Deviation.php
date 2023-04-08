@@ -3,11 +3,16 @@
 namespace JesGs\DevArt\DeviantArt;
 
 use \JesGs\DevArt\Plugin;
+use \JesGs\DevArt\Interfaces\PluginComponent;
 use JetBrains\PhpStorm\NoReturn;
 
-class Deviation {
+class Deviation implements PluginComponent {
 
 	const JOURNAL_CREATE = 'https://www.deviantart.com/api/v1/oauth2/deviation/journal/create';
+
+	public function init(): void {
+
+	}
 
 	public static function get_deviation( string $url ) {}
 
@@ -19,31 +24,31 @@ class Deviation {
 	 *
 	 * @return void
 	 */
-	public static function create_journal( \WP_Post $post ): void {
-
-		die();
-		$access_token_obj = Plugin::get_access_token();
-
-		$access_token = $access_token_obj->getToken();
-
-		// build our POST object
-		$journal_data = [
-			'access_token'    => $access_token,
-			'title'           => $post->post_title,
-			'body'            => $post->post_content,
-			'tags'            => '',
-			'is_mature'       => false,
-			'allow_comments'  => true,
-			'license_options' => [],
-		];
-
-		$response = wp_remote_post( self::JOURNAL_CREATE, [
-			'body' => $journal_data,
-		] );
-		var_dump($response);
+	public function create_journal( \WP_Post $post ): void {
+//
+//		return;
+//		$access_token_obj = Plugin::get_access_token();
+//
+//		$access_token = $access_token_obj->getToken();
+//
+//		// build our POST object
+//		$journal_data = [
+//			'access_token'    => $access_token,
+//			'title'           => $post->post_title,
+//			'body'            => $post->post_content,
+//			'tags'            => '',
+//			'is_mature'       => false,
+//			'allow_comments'  => true,
+//			'license_options' => [],
+//		];
+//
+//		$response = wp_remote_post( self::JOURNAL_CREATE, [
+//			'body' => $journal_data,
+//		] );
+//		var_dump($response);
 //		if ( 200 === $response['code'] ) {
 //			add_post_meta( $post->ID, 'deviantion_uuid', $response['body']['deviationid'] );
 //		}
-		die();
+
 	}
 }

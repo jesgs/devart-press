@@ -27,4 +27,4 @@ $install = \JesGs\DevArt\Install::get_instance();
 register_activation_hook( __FILE__, [ $install, 'activate' ] );
 register_deactivation_hook( __FILE__, [ $install, 'deactivate' ] );
 
-add_action( 'plugin_loaded', [ '\JesGs\DevArt\Plugin', 'plugin_loaded' ] );
+add_action( 'plugins_loaded', [ '\JesGs\DevArt\Plugin', 'plugin_loaded' ] );

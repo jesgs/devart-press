@@ -13,7 +13,7 @@ const environment = ({
 
 module.exports = {
 	...defaultConfig,
-	entry: "./src/index.tsx",
+	entry: "./assets/admin/ui/src/index.tsx",
 	resolve: {
 		...defaultConfig.resolve,
 		extensions: ['.tsx']

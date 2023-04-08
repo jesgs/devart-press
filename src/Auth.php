@@ -4,117 +4,101 @@ namespace JesGs\DevArt;
 use \DeviantArt\OAuth2\Client\Provider\DeviantArt;
 use \League\OAuth2\Client\Provider\GenericProvider;
 use \League\OAuth2\Client\Token\AccessToken;
+use \JesGs\DevArt\Interfaces\PluginComponent;
 
-class Auth {
+class Auth implements PluginComponent {
 
-	const AUTH_URL = 'https://www.deviantart.com/oauth2/authorize';
+	const DEVIANT_ART_AUTH_URL = 'https://www.deviantart.com/oauth2/authorize';
 
-	const ACCESS_TOKEN_URL = 'https://www.deviantart.com/oauth2/token';
+	const DEVIANT_ART_ACCESS_TOKEN_URL = 'https://www.deviantart.com/oauth2/token';
+
 	/**
 	 * @var GenericProvider
 	 */
 	protected GenericProvider $provider;
 
-	public function __construct() {
-		add_action( 'rest_api_init', [ self::class, 'register_rest_route' ] );
+	private static bool $is_user_logged_in = false;
+
+	public function __construct() {}
+
+	public function init(): void {
+		// do Oauth cycle here
+		self::do_oauth();
 	}
 
-	public static function register_rest_route(): void {
-		register_rest_route(
-			'devart-press/v1',
-			'/authorize',
-			[
-				'methods'  => 'GET',
-				'callback' => [ self::class, 'authorize' ],
-				'permission_callback' => function ( \WP_REST_Request $request ) {
-					return current_user_can( 'edit_theme_options' );
-				}
-			]
-		);
-
-		register_rest_route(
-			'devart-press/v1',
-			'/token',
-			[
-				'methods'  => 'GET',
-				'callback' => [ self::class, 'token' ],
-				'permission_callback' => function ( \WP_REST_Request $request ) {
-					return current_user_can( 'edit_theme_options' );
-				}
-			]
-		);
-	}
-
-	public static function authorize( \WP_REST_Request $request ): \WP_REST_Response {
-		// get token
-
-		$response = new \WP_REST_Response();
-		$response->set_status(200);
-
-		$params = $request->get_params();
-		$response->set_data([
-			'data' => [
-				'message' => 'hey ya',
-				'request_parms' => $params,
-			]
-		]);
-
-		return $response;
+	/**
+	 * Implicit Grant start
+	 * Request Auth — Step 1
+	 * Redirect —> Step 2
+	 *
+	 * @return string
+	 */
+	public static function request_authorization(): string {
 
 		$params = [
-			'grant_type'   => 'authorization_code',
-			'code'         => filter_input(INPUT_GET, 'code'),
-			'redirect_uri' => 'http://' . $_SERVER['HTTP_HOST'] . '/lastfm-spotify/authorize.php',
-		];
-
-		$postdata = http_build_query($params);
-
-		$opts = [
-			'http' =>
-				array(
-				  'method'  => 'POST',
-				  'header'  => "Content-type: application/x-www-form-urlencoded\r\n"
-				               . "Authorization: Basic " . base64_encode( CLIENT_ID . ':' . CLIENT_SECRET) . "\r\n",
-				  'content' => $postdata
-				)
-			];
-
-		$context  = stream_context_create($opts);
-
-		$result = @file_get_contents(self::ACCESS_TOKEN_URL, false, $context);
-		$auth = json_decode($result);
-		return $request;
-	}
-
-	public static function token( \WP_REST_Request $request ): \WP_REST_Response {
-		$response = new \WP_REST_Response();
-		return $response;
-	}
-
-	public function get_access_token()  {
-		$params = [
-			'response_type' => 'code',
 			'client_id'     => CLIENT_ID,
-			'redirect_uri'  => home_url( 'wp-json/devart-press/v1/authorize' ),
+			'response_type' => 'token',
+			'redirect_uri'  => admin_url( 'options-general.php?page=devart-press-options&authorize=true' ),
+			'state'         => filter_input( INPUT_GET, 'nonce' ),
 			'scope'         => 'user.manage',
 		];
 
-		$query_vars = http_build_query( $params );
-		$url = self::AUTH_URL . '?' . $query_vars;
-//		$response = wp_remote_get( $url );
-		var_dump($url, $params);
-		die();
-//
-//		$provider = new GenericProvider([
-//			'clientId'                => CLIENT_ID,    // The client ID assigned to you by the provider
-//			'clientSecret'            => CLIENT_SECRET,    // The client password assigned to you by the provider
-//			'redirectUri'             => home_url( 'redirect' ),
-//			'urlAuthorize'            => 'https://www.deviantart.com/oauth2/authorize',
-//			'urlAccessToken'          => 'https://www.deviantart.com/oauth2/token',
-//			'urlResourceOwnerDetails' => 'https://service.example.com/resource',
-//			'scopes'                  => 'user.manage'
-//		]);
-//
-//		return $provider->getAccessToken('client_credentials');
+		return self::DEVIANT_ART_AUTH_URL . '?' . http_build_query($params);
+	}
+
+	/**
+	 * Authorize — Step 2
+	 * Redirected from Step 1 —> Redirect to Step 3
+	 * @return string|bool
+	 */
+	public static function authorize(): ?string {
+		$verify_nonce = filter_input( INPUT_GET, 'state' );
+		if ( ! wp_verify_nonce( $verify_nonce, 'devart-press_auth' ) ) {
+			return admin_url('options-general.php?page=devart-press-options?error=nonce_fail');
+		}
+
+		// are there errors?
+		$error = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
+		if ( ! empty( $error ) ) {
+			$params = [
+				'error' => $error,
+				'error_description' => filter_input( INPUT_GET, 'error_description', FILTER_SANITIZE_STRING ),
+			];
+
+			$query = http_build_query( $params );
+			return admin_url('options-general.php?page=devart-press-options&' . $query);
+		}
+
+		// store token in wp_options
+		add_option( 'devart-press__oauth_token', 'access_token' );
+
+		// cb#access_token=Alph4num3r1ct0k3nv4lu3&token_type=bearer&expires_in=3600&scope=basic&state=mysessionid
+		$params = [
+			'success' => 'true',
+			'access_token' => filter_input( INPUT_GET, 'access_token' ),
+			'token_type'   => filter_input( INPUT_GET, 'token_type' ),
+			'expires_in'   => filter_input( INPUT_GET, 'expires_in' ),
+			'scope'        => filter_input( INPUT_GET, 'scope' ),
+		];
+		$query = http_build_query( $params );
+
+		return admin_url( 'options-general.php?page=devart-press-options&' . $query );
+	}
+
+	public static function do_oauth(): ?string {
+		// handle auth flow
+		if ( filter_input( INPUT_GET, 'request_auth', FILTER_VALIDATE_BOOLEAN ) ) {
+			$deviant_art_auth_url = Auth::request_authorization();
+			if ( ! empty( $deviant_art_auth_url ) ) {
+				header( 'Location: ' . esc_url_raw( $deviant_art_auth_url ) );
+			}
+		}
+
+		if ( filter_input( INPUT_GET, 'access_token', FILTER_SANITIZE_STRING ) ) {
+			$redirect = self::authorize();
+			header( 'Location: ' . $redirect );
+		}
+
+		return '';
 	}
 }
