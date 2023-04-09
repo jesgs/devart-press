@@ -11,10 +11,11 @@ if (!current_user_can('manage_options')) {
 		)
 	);
 }
-	$auth_nonce = wp_create_nonce( 'devart-press_auth' );
-	dump( $_GET );
+
+//$auth_nonce = wp_create_nonce( 'devart-press_auth' );
+$auth_url   = home_url('get-authorization');
 ?>
 
 <div id="devart-press-options" class="wrap">
-	<a id="authorize-link" target="_blank" rel="noopener nofollow" href="<?php echo admin_url( 'options-general.php?page=devart-press-options&nonce=' . $auth_nonce . '&request_auth=true' ) ?>">Connect to DeviantArt</a>
+	<a id="authorize-link" target="_blank" rel="noopener nofollow" href="<?php echo $auth_url; ?>">Connect to DeviantArt</a>
 </div>

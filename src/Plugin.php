@@ -37,6 +37,7 @@ class Plugin {
 		self::get_instance()->load_components([
 			Auth::class,
 			Admin::class,
+			Routes::class,
 			Deviation::class,
 		]);
 	}

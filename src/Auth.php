@@ -23,7 +23,7 @@ class Auth implements PluginComponent {
 
 	public function init(): void {
 		// do Oauth cycle here
-		self::do_oauth();
+//		self::do_oauth();
 	}
 
 	/**
@@ -36,10 +36,10 @@ class Auth implements PluginComponent {
 	public static function request_authorization(): string {
 
 		$params = [
-			'client_id'     => CLIENT_ID,
 			'response_type' => 'token',
-			'redirect_uri'  => admin_url( 'options-general.php?page=devart-press-options&authorize=true' ),
-			'state'         => filter_input( INPUT_GET, 'nonce' ),
+			'client_id'     => CLIENT_ID,
+			'redirect_uri'  => home_url( 'authorize' ),
+			'state'         => wp_create_nonce( 'devart-press_auth' ),
 			'scope'         => 'user.manage',
 		];
 
@@ -48,10 +48,13 @@ class Auth implements PluginComponent {
 
 	/**
 	 * Authorize — Step 2
-	 * Redirected from Step 1 —> Redirect to Step 3
+	 * Redirected from Step 1 —> Auth is successful store token
 	 * @return string|bool
 	 */
 	public static function authorize(): ?string {
+		// because deviant art uses # instead of ?, we need to parse the url first.
+//		$parsed_url = \Safe\parse_url();
+
 		$verify_nonce = filter_input( INPUT_GET, 'state' );
 		if ( ! wp_verify_nonce( $verify_nonce, 'devart-press_auth' ) ) {
 			return admin_url('options-general.php?page=devart-press-options?error=nonce_fail');
@@ -72,7 +75,6 @@ class Auth implements PluginComponent {
 		// store token in wp_options
 		add_option( 'devart-press__oauth_token', 'access_token' );
 
-		// cb#access_token=Alph4num3r1ct0k3nv4lu3&token_type=bearer&expires_in=3600&scope=basic&state=mysessionid
 		$params = [
 			'success' => 'true',
 			'access_token' => filter_input( INPUT_GET, 'access_token' ),
