@@ -22,8 +22,7 @@ class Auth implements PluginComponent {
 	public function __construct() {}
 
 	public function init(): void {
-		// do Oauth cycle here
-//		self::do_oauth();
+		self::$is_user_logged_in = is_user_logged_in();
 	}
 
 	/**
@@ -51,7 +50,7 @@ class Auth implements PluginComponent {
 	 * Redirected from Step 1 —> Auth is successful store token
 	 * @return string|bool
 	 */
-	public static function authorize(): ?string {
+	public static function authorize(\WP_REST_Request $request): ?\WP_REST_Response {
 		// because deviant art uses # instead of ?, we need to parse the url first.
 //		$parsed_url = \Safe\parse_url();
 
@@ -64,7 +63,7 @@ class Auth implements PluginComponent {
 		$error = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
 		if ( ! empty( $error ) ) {
 			$params = [
-				'error' => $error,
+				'error'             => $error,
 				'error_description' => filter_input( INPUT_GET, 'error_description', FILTER_SANITIZE_STRING ),
 			];
 
@@ -83,8 +82,9 @@ class Auth implements PluginComponent {
 			'scope'        => filter_input( INPUT_GET, 'scope' ),
 		];
 		$query = http_build_query( $params );
+		// instead of redirecting, store and return ajax response
 
-		return admin_url( 'options-general.php?page=devart-press-options&' . $query );
+		return '';
 	}
 
 	public static function do_oauth(): ?string {
@@ -102,5 +102,9 @@ class Auth implements PluginComponent {
 		}
 
 		return '';
+	}
+
+	public static function is_user_logged_in(): bool {
+		return Auth::$is_user_logged_in;
 	}
 }
