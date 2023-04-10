@@ -9,18 +9,10 @@ class Routes implements PluginComponent {
 
 	}
 	public function init(): void {
-		add_action( 'init', [$this, 'register_init'], 555 );
-
+		add_action( 'init', [$this, 'register_routes'], 555 );
+		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ], 555 );
 		add_action( 'template_redirect', [ $this, 'template_redirect' ], 555 );
-
-		add_filter( 'template_include', [ $this, 'get_template' ] );
-
-		add_action('rest_api_init', [$this, 'register_rest_routes']);
-	}
-
-	public function register_init(): void {
-		$this->register_routes();
-		$this->register_rest_routes();
+		add_filter( 'template_include', [ $this, 'get_template' ], 555 );
 	}
 
 	public function register_routes(): void {
@@ -39,7 +31,7 @@ class Routes implements PluginComponent {
 		register_rest_route(
 			'devart-press/v1',
 			'/store-token', [
-				'methods'  => 'GET',
+				'methods'  => 'POST',
 				'callback' => [ Auth::class, 'authorize' ],
 				'permission_callback' => function () {
 					return Auth::is_user_logged_in();

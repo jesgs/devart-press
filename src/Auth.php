@@ -51,57 +51,49 @@ class Auth implements PluginComponent {
 	 * @return string|bool
 	 */
 	public static function authorize(\WP_REST_Request $request): ?\WP_REST_Response {
-		// because deviant art uses # instead of ?, we need to parse the url first.
-//		$parsed_url = \Safe\parse_url();
+		$response = new \WP_REST_Response();
 
-		$verify_nonce = filter_input( INPUT_GET, 'state' );
-		if ( ! wp_verify_nonce( $verify_nonce, 'devart-press_auth' ) ) {
-			return admin_url('options-general.php?page=devart-press-options?error=nonce_fail');
+		// validate nonce first
+		$nonce = $request->get_param( 'nonce' );
+		if ( ! wp_verify_nonce($nonce, 'wp_rest') ) {
+			$response->set_status(403);
+			$response->set_data(['error' => 'nonce expired', 'user' => Auth::$is_user_logged_in, 'nonce' => $nonce ]);
+			return $response;
 		}
 
-		// are there errors?
-		$error = filter_input( INPUT_GET, 'error', FILTER_SANITIZE_STRING );
-		if ( ! empty( $error ) ) {
-			$params = [
-				'error'             => $error,
-				'error_description' => filter_input( INPUT_GET, 'error_description', FILTER_SANITIZE_STRING ),
-			];
-
-			$query = http_build_query( $params );
-			return admin_url('options-general.php?page=devart-press-options&' . $query);
+		$url = $request->get_param('url');
+		if ( empty( $url ) ) {
+			$response->set_status(422);
+			$response->set_data([
+				'error' => 'Missing required parameters'
+			]);
 		}
+
+		$parsed_url = parse_url( $url );
+
+		// @todo check state to make sure it matches
+		// @todo add an expiration time instead of relying on the expires_in variable
+
+		if ( ! isset( $parsed_url['fragment'] ) ) {
+			$response->set_status(500);
+			$response->set_data([
+				'error' => 'Data could not be processed'
+			]);
+		}
+
+		$parsed_query = [];
+		$fragment = $parsed_url['fragment'];
+
+		parse_str( $fragment, $parsed_query );
+
+		$response->set_data([
+			'message' => 'everything a-okay',
+ 		]);
 
 		// store token in wp_options
-		add_option( 'devart-press__oauth_token', 'access_token' );
+		update_option( 'devart-press__oauth_token', $parsed_query );
 
-		$params = [
-			'success' => 'true',
-			'access_token' => filter_input( INPUT_GET, 'access_token' ),
-			'token_type'   => filter_input( INPUT_GET, 'token_type' ),
-			'expires_in'   => filter_input( INPUT_GET, 'expires_in' ),
-			'scope'        => filter_input( INPUT_GET, 'scope' ),
-		];
-		$query = http_build_query( $params );
-		// instead of redirecting, store and return ajax response
-
-		return '';
-	}
-
-	public static function do_oauth(): ?string {
-		// handle auth flow
-		if ( filter_input( INPUT_GET, 'request_auth', FILTER_VALIDATE_BOOLEAN ) ) {
-			$deviant_art_auth_url = Auth::request_authorization();
-			if ( ! empty( $deviant_art_auth_url ) ) {
-				header( 'Location: ' . esc_url_raw( $deviant_art_auth_url ) );
-			}
-		}
-
-		if ( filter_input( INPUT_GET, 'access_token', FILTER_SANITIZE_STRING ) ) {
-			$redirect = self::authorize();
-			header( 'Location: ' . $redirect );
-		}
-
-		return '';
+		return $response;
 	}
 
 	public static function is_user_logged_in(): bool {
