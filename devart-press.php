@@ -23,17 +23,21 @@ define( 'CLIENT_ID', getenv( 'CLIENT_ID' ) );
 define( 'CLIENT_SECRET', getenv( 'CLIENT_SECRET' ) );
 
 $plugin_folder = basename( dirname( __FILE__ ) );
-if (!defined('DEVART_PRESS_FOLDER'))
-	define('DEVART_PRESS_FOLDER', $plugin_folder);
+if ( ! defined( 'DEVART_PRESS_FOLDER' ) ) {
+	define( 'DEVART_PRESS_FOLDER', $plugin_folder );
+}
 
-if (!defined('DEVART_PRESS_ABSPATH'))
-	define('DEVART_PRESS_ABSPATH', plugin_dir_path(__FILE__));
+if ( ! defined( 'DEVART_PRESS_ABSPATH' ) ) {
+	define( 'DEVART_PRESS_ABSPATH', plugin_dir_path( __FILE__ ) );
+}
 
-if (!defined('DEVART_PRESS_URLPATH'))
-	define('DEVART_PRESS_URLPATH', plugin_dir_url(__FILE__));
+if ( ! defined( 'DEVART_PRESS_URLPATH' ) ) {
+	define( 'DEVART_PRESS_URLPATH', plugin_dir_url( __FILE__ ) );
+}
 
-if (!defined('DEVART_PRESS_LANG'))
+if ( ! defined( 'DEVART_PRESS_LANG' ) ) {
 	define('DEVART_PRESS_LANG', $plugin_folder . '/languages');
+}
 
 $install = \JesGs\DevArt\Install::get_instance();
 
