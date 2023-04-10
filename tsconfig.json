@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./assets/",
+    "outDir": "./assets/admin/build",
     "target": "es6",
     "lib": [
       "dom",
@@ -20,6 +20,7 @@
     "jsx": "react",
   },
   "include": [
-    "src"
+    "src",
+    "assets/admin/ui/src"
   ]
 }

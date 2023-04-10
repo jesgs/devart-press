@@ -23,12 +23,26 @@ class Admin implements PluginComponent {
 		);
 	}
 
-	public function enqueue_scripts() {
+	public function enqueue_scripts($hook = ''): void {
+		global $devart_press__page_hook;
+
 		// in case we need frontend assets — we just might
 		wp_localize_script( 'wp-api', 'wpApiSettings', array(
 			'root'  => esc_url_raw( rest_url() ),
 			'nonce' => wp_create_nonce( 'wp_rest' )
 		) );
+
+		$dep = include_once DEVART_PRESS_ABSPATH . 'assets/build/index.asset.php';
+		wp_register_script(
+		'devart-press--react-int',
+			DEVART_PRESS_URLPATH . 'assets/build/index.js',
+			$dep,
+			'1.0.0'
+		);
+
+		if ( $hook === $devart_press__page_hook ) {
+			wp_enqueue_script( 'devart-press--react-init' );
+		}
 	}
 
 	public function load_page(): void {
