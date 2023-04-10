@@ -79,6 +79,8 @@ class Auth implements PluginComponent {
 			$response->set_data([
 				'error' => 'Data could not be processed'
 			]);
+
+			return $response;
 		}
 
 		$parsed_query = [];
