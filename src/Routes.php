@@ -28,6 +28,7 @@ class Routes implements PluginComponent {
 	}
 
 	public function register_rest_routes(): void {
+		// end-point for token storage
 		register_rest_route(
 			'devart-press/v1',
 			'/store-token', [

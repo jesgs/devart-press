@@ -1,3 +1,4 @@
+
 {
   "compilerOptions": {
     "outDir": "./assets/admin/build",
@@ -5,7 +6,8 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "es6"
     ],
     "downlevelIteration": true,
     "allowJs": true,
@@ -20,7 +22,6 @@
     "jsx": "react",
   },
   "include": [
-    "src",
     "assets/admin/ui/src"
   ]
 }

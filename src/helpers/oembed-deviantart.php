@@ -31,12 +31,12 @@ function handle_deviantart( $matches, $attr, $url, $rawattr ): string {
 	 * more than necessary
 	 *
 	 * @var int $time_to_expiration When the meta field should be refreshed
-	 * @var string $cached_response Cached JSON response object
+	 * @var string $da_response_body Cached JSON response object
 	 */
 	$time_to_expiration = get_post_meta( $post_id, '_deviantart_embed_expires', true );
 	$da_response_body   = get_post_meta( $post_id, '_deviantart_embed', true );
 
-	if ( time() > $time_to_expiration || empty( $cached_response ) ) {
+	if ( time() > $time_to_expiration || empty( $da_response_body ) ) {
 
 		$http_options = [
 			'headers' => [

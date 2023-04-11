@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var array $deviation
+ */
 ?>
 
 <div class="media">

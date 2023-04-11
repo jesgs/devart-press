@@ -16,7 +16,8 @@ module.exports = {
 	entry: "./assets/admin/ui/src/index.tsx",
 	resolve: {
 		...defaultConfig.resolve,
-		extensions: ['.tsx']
+		modules: ['.', 'node_modules'],
+		extensions: [...defaultConfig.resolve.extensions, '.js']
 	},
 	module: {
 		...defaultConfig.module,

@@ -1,9 +1,10 @@
 import { createRoot } from 'react-dom/client';
 import App from './App'
+import ThemeProvider from "./Theme"
 
 document.addEventListener('DOMContentLoaded', ()=> {
-
-// Render your React component instead
+  // @ts-ignore
   const root = createRoot(document.getElementById('app'));
-  root.render(<App />);
+  // @ts-ignore
+  root.render(<ThemeProvider><App /></ThemeProvider>);
 })
