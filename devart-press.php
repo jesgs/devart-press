@@ -19,9 +19,6 @@
 // @todo Create an option that allows a tech savvy user to add the values to their system environment, but also add a text field in the admin for users who are not tech-savvy
 require __DIR__ . '/vendor/autoload.php';
 
-define( 'CLIENT_ID', getenv( 'CLIENT_ID' ) );
-define( 'CLIENT_SECRET', getenv( 'CLIENT_SECRET' ) );
-
 $plugin_folder = basename( dirname( __FILE__ ) );
 if ( ! defined( 'DEVART_PRESS_FOLDER' ) ) {
 	define( 'DEVART_PRESS_FOLDER', $plugin_folder );
@@ -38,10 +35,3 @@ if ( ! defined( 'DEVART_PRESS_URLPATH' ) ) {
 if ( ! defined( 'DEVART_PRESS_LANG' ) ) {
 	define('DEVART_PRESS_LANG', $plugin_folder . '/languages');
 }
-
-$install = \JesGs\DevArt\Install::get_instance();
-
-register_activation_hook( __FILE__, [ $install, 'activate' ] );
-register_deactivation_hook( __FILE__, [ $install, 'deactivate' ] );
-
-add_action( 'plugins_loaded', [ '\JesGs\DevArt\Plugin', 'plugin_loaded' ] );

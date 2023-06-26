@@ -16,8 +16,5 @@
         "files": [
             "src/helpers/oembed-deviantart.php"
         ]
-    },
-    "require": {
-        "jesgs/oauth2-deviantart": "dev-master"
     }
 }
